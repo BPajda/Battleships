@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Statki</title>
+    <style>
+        .div {
+            width: 30px;
+            height: 30px;
+            border: 1px solid black;
+            display: inline-block;
+            margin-left: -1px;
+            box-sizing: border-box;
+            margin-top: -5px;
+        }
+
+        .div p {
+            margin-top: -5px;
+            font-size: 37px;
+            text-align: center;
+            font-family: Arial;
+        }
+
+        #main {
+            position: absolute;
+
+        }
+
+        #ships {
+            position: absolute;
+            width: 250px;
+            top: 30px;
+            left: 50px;
+        }
+
+        .czerwony1 {
+            background-color: red;
+
+        }
+
+        .niebieski {
+            background-color: blue;
+        }
+
+        .czerwony {
+            background-color: red;
+
+        }
+
+        .zielony {
+            background-color: green;
+        }
+
+        .statek {
+            height: 30px;
+            width: fit-content;
+
+        }
+
+        .ShipDiv {
+            width: 30px;
+            height: 30px;
+            border: 1px solid black;
+            display: inline-block;
+            margin-left: -1px;
+            box-sizing: border-box;
+
+        }
+
+        #game {
+            left: 300px;
+            top: 100px;
+            position: absolute;
+        }
+
+        #gameboard {
+            top: 40px;
+            width: 300px;
+            position: absolute;
+            height: 300px;
+            padding-left: 1px;
+            padding-top: 5px;
+
+        }
+
+        #title {
+            position: absolute;
+            left: 125px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        #komputer {
+            position: absolute;
+            left: 800px;
+            top: 100px;
+        }
+
+        #gameboard2 {
+            position: absolute;
+            top: 40px;
+            width: 300px;
+            height: 300px;
+            padding-left: 1px;
+            padding-top: 5px;
+        }
+
+        #title2 {
+            position: absolute;
+            left: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        #start {
+            position: absolute;
+            left: 620px;
+            top: 500px;
+            font-size: 20px;
+
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main">
+        <div id="ships"></div>
+        <div id="game">
+            <div id="title">PLAYER</div>
+            <div id="gameboard"></div>
+        </div>
+        <div id="komputer">
+            <div id="title2">(NOT)WORTHY_OPONENT</div>
+            <div id="gameboard2"></div>
+        </div>
+    </div>
+    <button id="start" class="hidden">Roszpocznij Gre</button>
+
+
+    <script>
+        var z = 1
+        var wybranyStatek = null
+        //funkcje od podswietlania
+        function onstatekmousover(event) {
+            var statek = event.target.parentNode
+            statek.classList.add("czerwony1")
+
+        }
+        function onstatekmousout(event) {
+            var statek = event.target.parentNode
+            statek.classList.remove("czerwony1")
+        }
+        //funkcja zaznaczania
+        function onstatekclick(event) {
+            var statek = event.target.parentNode
+            if (wybranyStatek != null) {
+                wybranyStatek.classList.remove("niebieski")
+            }
+            wybranyStatek = statek
+            statek.classList.add("niebieski")
+        }
+        //szukanie miejsca dla statku
+        function napolu(event) {
+            if (wybranyStatek == null) {
+                return false
+            }
+            var div = event.target
+            var id = div.id
+            var id = id.slice(3, id.length)
+            id = parseInt(id)
+            var dlugosc = wybranyStatek.children.length
+            if (z % 2 == 1) {
+                if ((id % 10) + dlugosc >= 10) {
+                    var wartosc = (id % 10) + dlugosc - 10
+                    id = id - wartosc
+                }
+                var czymoznaustawic = czyjestmiejsce(id)
+                for (var i = 0; i < dlugosc; i++) {
+                    if (czymoznaustawic == true) {
+                        (komorki[id + i]).classList.add("zielony")
+
+                    } else {
+                        (komorki[id + i]).classList.add("czerwony")
+                    }
+                }
+            } else {
+                if ((Math.floor(id / 10)) + dlugosc >= 10) {
+                    var wartosc = Math.floor(id / 10) + dlugosc - 10
+                    id = id - wartosc * 10
+                }
+                var czymoznaustawic = czyjestmiejsce(id)
+                for (var i = 0; i < dlugosc; i++) {
+                    if (czymoznaustawic == true) {
+                        (komorki[id + i * 10]).classList.add("zielony")
+
+                    } else {
+                        (komorki[id + i * 10]).classList.add("czerwony")
+                    }
+                }
+
+            }
+        }
+        function pozapolem(event) {
+            if (wybranyStatek == null) {
+                return false
+            }
+            var div = event.target
+            var id = div.id
+            var id = id.slice(3, id.length)
+            id = parseInt(id)
+            var dlugosc = wybranyStatek.children.length
+            if (z % 2 == 1) {
+                if ((id % 10) + dlugosc >= 10) {
+                    var wartosc = (id % 10) + dlugosc - 10
+                    id = id - wartosc
+                }
+                var czymoznaustawic = czyjestmiejsce(id)
+                for (var i = 0; i < dlugosc; i++) {
+                    (komorki[id + i]).classList.remove("zielony");
+                    (komorki[id + i]).classList.remove("czerwony")
+                }
+            } else {
+                if ((Math.floor(id / 10)) + dlugosc >= 10) {
+                    var wartosc = Math.floor(id / 10) + dlugosc - 10
+                    id = id - wartosc * 10
+                }
+                var czymoznaustawic = czyjestmiejsce(id)
+                for (var i = 0; i < dlugosc; i++) {
+                    (komorki[id + i * 10]).classList.remove("zielony");
+                    (komorki[id + i * 10]).classList.remove("czerwony")
+                }
+            }
+        }
+        function ustawiony(event) {
+            if (wybranyStatek == null) {
+                return false
+            }
+            var div = event.target
+            var id = div.id
+            var id = id.slice(3, id.length)
+            id = parseInt(id)
+            var czymoznaustawic = czyjestmiejsce(id)
+            if (czymoznaustawic == false) {
+                return "unlucky"
+            }
+            var dlugosc = wybranyStatek.children.length
+            if (z % 2 == 1) {
+                if ((id % 10) + dlugosc >= 10) {
+                    var wartosc = (id % 10) + dlugosc - 10
+                    id = id - wartosc
+                }
+                var czymoznaustawic = czyjestmiejsce(id)
+                for (var i = 0; i < dlugosc; i++) {
+                    (komorki[id + i]).classList.add("niebieski");
+                    (komorki[id + i]).classList.remove("zielony");
+                    (komorki[id + i]).classList.remove("czerwony");
+
+                }
+            } else {
+                if ((Math.floor(id / 10)) + dlugosc >= 10) {
+                    var wartosc = Math.floor(id / 10) + dlugosc - 10
+                    id = id - wartosc * 10
+                }
+                var czymoznaustawic = czyjestmiejsce(id)
+                for (var i = 0; i < dlugosc; i++) {
+                    (komorki[id + i * 10]).classList.add("niebieski");
+                    (komorki[id + i * 10]).classList.remove("zielony");
+                    (komorki[id + i * 10]).classList.remove("czerwony");
+                }
+            }
+            var rzad = idnatablice(id)[0]
+            var kolumna = idnatablice(id)[1]
+            if (z % 2 == 1) {
+                for (var i = rzad - 1; i <= rzad + 1; i++) {
+                    for (var j = kolumna - 1; j <= kolumna + dlugosc; j++) {
+                        tablica[i][j] = 1
+
+                    }
+                }
+                for (var y = 0; y < dlugosc; y++) {
+                    tablica[rzad][kolumna + y] = 2
+                }
+            } else {
+                for (var i = rzad - 1; i <= rzad + dlugosc; i++) {
+                    for (var j = kolumna - 1; j <= kolumna + 1; j++) {
+                        tablica[i][j] = 1
+                    }
+                }
+                for (var y = 0; y < dlugosc; y++) {
+                    tablica[rzad + y][kolumna] = 2
+                }
+            }
+            wybranyStatek.remove()
+            wybranyStatek = null
+
+            if (shipsAvaible.children.length == 10) {
+                psycisk.classList.remove("hidden")
+
+            }
+        }
+        function idnatablice(id) {
+            var rzad = Math.floor(id / 10)
+            var kolumna = id % 10
+            return [rzad + 1, kolumna + 1]
+        }
+        function czyjestmiejsce(id) {
+            var rzad = idnatablice(id)[0]
+            var kolumna = idnatablice(id)[1]
+            var dlugosc = wybranyStatek.children.length
+            for (var i = 0; i < dlugosc; i++) {
+                if (z % 2 == 1) {
+                    if (tablica[rzad][kolumna + i] == 1 || tablica[rzad][kolumna + i] == 2) {
+                        return false
+                    }
+                } else {
+                    if (tablica[rzad + i][kolumna] == 1 || tablica[rzad + i][kolumna] == 2) {
+                        return false
+
+                    }
+                }
+            } return true
+
+        }
+        function rotacja(event) {
+            event.preventDefault()
+            z = z + 1
+            for (var i = 0; i < komorki.length; i++) {
+                komorki[i].classList.remove("zielony")
+                komorki[i].classList.remove("czerwony")
+            }
+            napolu(event)
+
+        }
+        function graStart(event) {
+            psycisk.classList.add("hidden")
+            for (var i = 0; i < komorkiPc.length; i++) {
+                komorkiPc[i].onclick = strzałGracza
+            }
+            for (var j = 0; j < komorki.length; j++) {
+                komorki[j].onclick = kliknieta
+            }
+
+        }
+        function strzałKomputera() {
+            do {
+                id = Math.floor(Math.random() * 100)
+                var kordy = idnatablice(id)
+                var trafionaKomorka = komorki[id]
+                var wartoscTab = tablica[kordy[0]][kordy[1]]
+
+            } while (trafionaKomorka.children.length != 0)
+            if (wartoscTab == 2) {
+                var trafiony = document.createElement('p')
+                trafiony.innerText = 'X'
+                trafionaKomorka.appendChild(trafiony)
+                pozostałe--
+                ruch--
+            } else {
+                var pudlo = document.createElement('p')
+                pudlo.innerText = 'O'
+                trafionaKomorka.appendChild(pudlo)
+            }
+            if (pozostałe == 0) {
+                playerLose()
+                return
+            }
+            if (ruch % 2 == 0) {
+                setTimeout(strzałKomputera, 1000)
+
+            }
+
+            ruch++
+        }
+        function strzałGracza(event) {
+            if (ruch % 2 == 1) {
+                alert("ruch komputera")
+                return 'unlucky'
+            }
+            trafionaKomorka = event.target
+            var id = trafionaKomorka.id.slice(3, trafionaKomorka.id.length)
+            id = parseInt(id)
+            var kordy = idnatablice(id)
+            var wartoscTab = tablicaPc[kordy[0]][kordy[1]]
+
+
+            if (wartoscTab == 2) {
+                var trafiony = document.createElement('p')
+                trafiony.innerText = 'X'
+                trafionaKomorka.appendChild(trafiony)
+                pozostałePc--
+                ruch--
+            } else {
+                var pudlo = document.createElement('p')
+                pudlo.innerText = 'O'
+                trafionaKomorka.appendChild(pudlo)
+            }
+            if (pozostałePc == 0) {
+                komputerLose()
+                return 'unlucky'
+            }
+            if (ruch % 2 == 0) {
+                setTimeout(strzałKomputera, 1000)
+            }
+            ruch++
+        }
+        function kliknieta(event) {
+            if (ruch % 2 == 0) {
+                alert("ruch gracza")
+            }
+        }
+        function komputerLose() {
+            alert('dobra robota, zwycięstwo jest twoje')
+            reload()
+
+        }
+        function playerLose() {
+            alert('przegrałeś z kretesem, spróbuj następnym razem')
+            for (var j = 1; j <= 10; j++) {
+                for (var k = 1; k <= 10; k++) {
+                    if (tablicaPc[j][k] == 2) {
+                        var id = 10 * (j - 1) + k - 1
+                        komorkiPc[id].style.backgroundColor = "red"
+                    }
+
+                }
+            }
+            setTimeout(reload, 5000)
+
+        }
+        function reload() {
+            ruch = 0
+            pozostałePc = 20
+            pozostałe = 20
+            shipsAvaible = document.getElementById("ships")
+            shipsAvaible.innerHTML = ''
+            gameboard = document.getElementById("gameboard")
+            gameboard.innerHTML = ""
+            gameboard2 = document.getElementById("gameboard2")
+            gameboard2.innerHTML = ""
+            z = 1
+            wybranyStatek = null
+
+            //tworzenie statkow
+            wymiary = "4332221111"
+            for (var i = 0; i < wymiary.length; i++) {
+                var ilosc = wymiary[i]
+                var statek = document.createElement("div")
+                statek.className = "statek"
+
+                for (var j = 0; j < ilosc; j++) {
+                    var div = document.createElement("div")
+                    div.className = "ShipDiv"
+                    statek.append(div)
+                }
+                shipsAvaible.append(statek)
+                if (i == 0) {
+                    wybranyStatek = statek
+                    wybranyStatek.classList.add("niebieski")
+                }
+                //podswietlenie statku po najechaniu
+                statek.onmouseover = onstatekmousover
+                statek.onmouseout = onstatekmousout
+                //zaznacza po kliknieciu
+                statek.onclick = onstatekclick
+                var br = document.createElement("br")
+                shipsAvaible.append(br)
+            }
+            tablica = []
+            for (var i = 0; i < 12; i++) {
+                tablica.push(Array(12).fill(0))
+            }
+
+            for (var i = 0; i < 100; i++) {
+                var div = document.createElement("div")
+                div.className = "div"
+                div.id = "div" + i
+                gameboard.append(div)
+                div.onmouseover = napolu
+                div.onmouseout = pozapolem
+                div.onclick = ustawiony
+                div.oncontextmenu = rotacja
+            }
+            komorki = gameboard.children
+            //komputer
+            for (var i = 0; i < 100; i++) {
+                var div = document.createElement("div")
+                div.className = "div"
+                div.id = "div" + i
+                gameboard2.append(div)
+            }
+            komorkiPc = gameboard2.children
+            tablicaPc = []
+            for (var i = 0; i < 12; i++) {
+                tablicaPc.push(Array(12).fill(0))
+            }
+            for (var l = 0; l < wymiary.length; l++) {
+
+                //losuje mmiejsca poczatku statku do skutku
+                do {
+
+                    //losowanie od 1 do 10 by nie wystawal
+                    x = Math.floor(Math.random() * (11 - parseInt(wymiary[l]))) + 1
+                    y = Math.floor(Math.random() * (11 - parseInt(wymiary[l]))) + 1
+                    z = Math.floor(Math.random() * 2)
+                    zle = 0
+                    if (z == 1) {
+                        for (var i = x - 1; i <= x + 1; i++) {
+                            for (var j = y - 1; j <= y + parseInt(wymiary[l]); j++) {
+                                if (tablicaPc[i][j] == 2) {
+                                    zle = 1
+                                }
+                            }
+                        }
+                    } else {
+                        for (var i = x - 1; i <= x + parseInt(wymiary[l]); i++) {
+                            for (var j = y - 1; j <= y + 1; j++) {
+                                if (tablicaPc[i][j] == 2) {
+                                    zle = 1
+                                }
+                            }
+                        }
+                    }
+                } while (tablicaPc[x][y] == 2 || zle == 1)
+
+                //uzupelnienie statku o dalsza jego czesc i wpisanie w tablice
+                tablicaPc[x][y] = 2
+                for (var j = 0; j < wymiary[l]; j++) {
+                    if (z == 1) {
+                        tablicaPc[x][y + j] = 2
+                    } else {
+                        tablicaPc[x + j][y] = 2
+                    }
+                }
+            }
+
+        }
+        var ruch = 0
+        var pozostałePc = 20
+        var pozostałe = 20
+
+
+
+
+
+        //tworzenie statkow
+        var shipsAvaible = document.getElementById("ships")
+        wymiary = "4332221111"
+        for (var i = 0; i < wymiary.length; i++) {
+            var ilosc = wymiary[i]
+            var statek = document.createElement("div")
+            statek.className = "statek"
+
+            for (var j = 0; j < ilosc; j++) {
+                var div = document.createElement("div")
+                div.className = "ShipDiv"
+                statek.append(div)
+            }
+            shipsAvaible.append(statek)
+            if (i == 0) {
+                wybranyStatek = statek
+                wybranyStatek.classList.add("niebieski")
+            }
+            //podswietlenie statku po najechaniu
+            statek.onmouseover = onstatekmousover
+            statek.onmouseout = onstatekmousout
+            //zaznacza po kliknieciu
+            statek.onclick = onstatekclick
+            var br = document.createElement("br")
+            shipsAvaible.append(br)
+        }
+
+        //tworzenie planszy
+        tablica = []
+        for (var i = 0; i < 12; i++) {
+            tablica.push(Array(12).fill(0))
+        }
+
+
+
+        var main = document.getElementById("main")
+        var gameboard = document.getElementById("gameboard")
+        for (var i = 0; i < 100; i++) {
+            var div = document.createElement("div")
+            div.className = "div"
+            div.id = "div" + i
+            gameboard.append(div)
+            div.onmouseover = napolu
+            div.onmouseout = pozapolem
+            div.onclick = ustawiony
+            div.oncontextmenu = rotacja
+        }
+        var komorki = gameboard.children
+        //komputer
+        var gameboard2 = document.getElementById("gameboard2")
+        for (var i = 0; i < 100; i++) {
+            var div = document.createElement("div")
+            div.className = "div"
+            div.id = "div" + i
+            gameboard2.append(div)
+        }
+        var komorkiPc = gameboard2.children
+        tablicaPc = []
+        for (var i = 0; i < 12; i++) {
+            tablicaPc.push(Array(12).fill(0))
+        }
+        for (var l = 0; l < wymiary.length; l++) {
+
+            //losuje mmiejsca poczatku statku do skutku
+            do {
+
+                //losowanie od 1 do 10 by nie wystawal
+                x = Math.floor(Math.random() * (11 - parseInt(wymiary[l]))) + 1
+                y = Math.floor(Math.random() * (11 - parseInt(wymiary[l]))) + 1
+                z = Math.floor(Math.random() * 2)
+                zle = 0
+                if (z == 1) {
+                    for (var i = x - 1; i <= x + 1; i++) {
+                        for (var j = y - 1; j <= y + parseInt(wymiary[l]); j++) {
+                            if (tablicaPc[i][j] == 2) {
+                                zle = 1
+                            }
+                        }
+                    }
+                } else {
+                    for (var i = x - 1; i <= x + parseInt(wymiary[l]); i++) {
+                        for (var j = y - 1; j <= y + 1; j++) {
+                            if (tablicaPc[i][j] == 2) {
+                                zle = 1
+                            }
+                        }
+                    }
+                }
+            } while (tablicaPc[x][y] == 2 || zle == 1)
+
+            //uzupelnienie statku o dalsza jego czesc i wpisanie w tablice
+            tablicaPc[x][y] = 2
+            for (var j = 0; j < wymiary[l]; j++) {
+                if (z == 1) {
+                    tablicaPc[x][y + j] = 2
+                } else {
+                    tablicaPc[x + j][y] = 2
+                }
+            }
+        }
+        var psycisk = document.getElementById("start")
+        psycisk.onclick = graStart
+
+
+    </script>
+</body>
+
+</html>
